@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instalador Sistema PROMs AMECRA</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#1A56A7;--blue-d:#0F3B7A;--blue-l:#E8F0FB;--blue-xl:#F3F7FD;
+  --green:#1B7A3E;--green-l:#E6F4EC;--amber:#D97706;--amber-l:#FEF3C7;
+  --red:#C0392B;--red-l:#FDECEA;
+  --gray-900:#111827;--gray-700:#374151;--gray-500:#6B7280;
+  --gray-300:#D1D5DB;--gray-100:#F3F4F6;
+}
+html,body{min-height:100vh;font-family:'DM Sans',sans-serif;background:#F0F4FA;color:var(--gray-900)}
+.app{max-width:760px;margin:0 auto;padding:32px 16px 80px}
+
+.header{display:flex;align-items:center;gap:16px;margin-bottom:20px;background:var(--blue-d);border-radius:24px;padding:24px 28px}
+.header img{width:60px;height:60px;object-fit:contain;background:white;border-radius:14px;padding:5px;flex-shrink:0}
+.header-text h1{font-family:'DM Serif Display',serif;font-size:22px;color:white;line-height:1.2}
+.header-text p{font-size:12px;color:rgba(255,255,255,0.7);margin-top:3px;line-height:1.4}
+
+.intro{background:white;border-radius:20px;padding:24px 28px;margin-bottom:20px;border:1.5px solid var(--gray-100)}
+.intro h2{font-family:'DM Serif Display',serif;font-size:20px;color:var(--blue-d);margin-bottom:10px}
+.intro p{font-size:14px;color:var(--gray-700);line-height:1.7;margin-bottom:10px}
+.intro p:last-child{margin-bottom:0}
+
+.medico-form{background:var(--blue-xl);border:1.5px solid var(--blue-l);border-radius:20px;padding:24px 28px;margin-bottom:20px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr 90px;gap:14px;margin-bottom:14px}
+.form-full{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--blue-d);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.field input{width:100%;padding:11px 14px;border:1.5px solid var(--blue-l);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;background:white;outline:none;transition:border .2s;color:var(--gray-900)}
+.field input:focus{border-color:var(--blue)}
+.field input.err{border-color:var(--red)}
+.prefijo-hint{font-size:13px;color:var(--gray-700);margin-bottom:16px;padding:10px 14px;background:white;border-radius:10px;border:1px solid var(--blue-l);display:none}
+.prefijo-hint strong{color:var(--blue-d)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 24px;border-radius:12px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;transition:all .15s;text-decoration:none;color:inherit}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--blue);color:white!important}
+.btn-primary:hover{background:var(--blue-d)}
+.btn-ghost{background:var(--gray-100);color:var(--gray-700)!important}
+.btn-ghost:hover{background:var(--gray-300)}
+.btn-green{background:var(--green);color:white!important}
+.btn-green:hover{background:#145c2e}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:16px}
+
+.progress-wrap{margin-bottom:20px}
+.progress-top{display:flex;justify-content:space-between;font-size:13px;color:var(--gray-500);margin-bottom:8px}
+.progress-bar{background:var(--gray-100);border-radius:99px;height:8px;overflow:hidden}
+.progress-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .6s ease}
+
+.steps{display:flex;flex-direction:column;gap:14px}
+.step-card{background:white;border-radius:18px;border:1.5px solid var(--gray-300);overflow:hidden;transition:border .3s,box-shadow .3s}
+.step-card.active{border-color:var(--blue);box-shadow:0 6px 32px rgba(26,86,167,.12)}
+.step-card.done{border-color:#86efac;background:#f0fdf4}
+.step-card.locked{opacity:.4;pointer-events:none}
+
+.step-head{display:flex;align-items:center;gap:14px;padding:18px 22px}
+.snum{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex-shrink:0}
+.snum.pend{background:var(--gray-100);color:var(--gray-500)}
+.snum.act{background:var(--blue);color:white}
+.snum.dn{background:var(--green);color:white;font-size:20px}
+.sinfo{flex:1}
+.sinfo h3{font-size:15px;font-weight:600}
+.sinfo p{font-size:12px;color:var(--gray-500);margin-top:2px}
+.badge{font-size:11px;padding:4px 12px;border-radius:99px;font-weight:600}
+.bp{background:var(--gray-100);color:var(--gray-500)}
+.ba{background:var(--blue-l);color:var(--blue-d)}
+.bd{background:var(--green-l);color:var(--green)}
+
+.sbody{padding:0 22px 22px;display:none;animation:fi .25s ease}
+.sbody.open{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.sdesc{font-size:14px;color:var(--gray-700);line-height:1.75;margin-bottom:16px}
+.sdesc code{background:var(--gray-100);padding:2px 8px;border-radius:6px;font-size:13px;font-family:monospace;color:var(--blue-d)}
+.sdesc ol{padding-left:20px;margin-top:8px}
+.sdesc ol li{margin-bottom:6px}
+.sdesc strong{font-weight:600;color:var(--gray-900)}
+
+.alert{padding:13px 16px;border-radius:12px;font-size:13px;line-height:1.6;margin:12px 0}
+.alert-info{background:var(--blue-l);color:var(--blue-d)}
+.alert-ok{background:var(--green-l);color:var(--green)}
+.alert-warn{background:var(--amber-l);color:#92400e}
+
+.ubox{background:var(--blue-xl);border:1.5px solid var(--blue-l);border-radius:12px;padding:14px 16px;margin:12px 0}
+.ubox label{font-size:11px;font-weight:700;color:var(--blue-d);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px}
+.urow{display:flex;gap:8px;align-items:center}
+.urow input{flex:1;padding:10px 14px;border:1.5px solid var(--blue-l);border-radius:10px;font-family:monospace;font-size:13px;background:white;outline:none;transition:border .2s}
+.urow input:focus{border-color:var(--blue)}
+.urow button{padding:10px 14px;background:var(--blue);color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+.udisp{display:flex;gap:8px;align-items:flex-start}
+.udisp span{flex:1;font-family:monospace;font-size:12px;color:var(--blue-d);word-break:break-all;line-height:1.5}
+.udisp button{flex-shrink:0;padding:8px 14px;background:var(--blue);color:white;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer}
+
+.final{background:var(--blue-d);border-radius:24px;padding:36px;color:white;text-align:center;margin-top:20px;display:none}
+.final h2{font-family:'DM Serif Display',serif;font-size:28px;margin-bottom:10px}
+.final p{font-size:14px;opacity:.85;margin-bottom:20px;line-height:1.7}
+.check-big{font-size:60px;display:block;margin-bottom:16px}
+.final .ubox{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);text-align:left}
+.final .ubox label{color:rgba(255,255,255,.65)}
+.final .udisp span{color:white}
+.final .udisp button{background:white;color:var(--blue-d)}
+.final-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:20px}
+
+@media(max-width:540px){
+  .form-grid{grid-template-columns:1fr}
+  .header{padding:18px 20px}
+  .header-text h1{font-size:18px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="header">
+  <img src="data:image/jpeg;base64,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" alt="AMECRA">
+  <div class="header-text">
+    <h1>Instalador Sistema PROMs AMECRA</h1>
+    <p>Guía de instalación personalizada · v2.0<br>Asociación Mexicana de Cirugía Reconstructiva Articular y Artroscopía A.C.</p>
+  </div>
+</div>
+
+<div class="intro">
+  <h2>Bienvenido, Dr./Dra.</h2>
+  <p>Este asistente le guiará para configurar su propio Sistema PROMs en menos de 10 minutos. Al finalizar tendrá una plataforma personal y gratuita para el seguimiento de resultados reportados por sus pacientes.</p>
+  <p><strong>Lo que necesita:</strong> Una cuenta de Google (Gmail) y los dos archivos del sistema (<code>Backend_PROMs_v2.gs</code> y <code>Landing_PROMs_Paciente.txt</code>). No requiere conocimientos técnicos.</p>
+</div>
+
+<!-- FORMULARIO MÉDICO -->
+<div class="medico-form" id="fmForm">
+  <div style="margin-bottom:18px">
+    <p style="font-size:13px;font-weight:700;color:var(--blue-d);margin-bottom:4px">Primero, ingrese sus datos</p>
+    <p style="font-size:13px;color:var(--gray-700)">Esto configurará su sistema con su nombre e identificador de casos.</p>
+  </div>
+  <div class="form-grid">
+    <div class="field">
+      <label>Nombre(s)</label>
+      <input type="text" id="fNombre" placeholder="Fernando" oninput="onFormChange()">
+    </div>
+    <div class="field">
+      <label>Apellido paterno</label>
+      <input type="text" id="fApellido" placeholder="Hernández" oninput="onFormChange()">
+    </div>
+    <div class="field">
+      <label>Prefijo</label>
+      <input type="text" id="fPrefijo" placeholder="H" maxlength="2" style="text-transform:uppercase;text-align:center;font-weight:700;font-size:16px" oninput="this.value=this.value.toUpperCase();onFormChange()">
+    </div>
+  </div>
+  <div class="form-full field">
+    <label>Institución / Hospital</label>
+    <input type="text" id="fInstitucion" placeholder="Hospital Ángeles, IMSS, Práctica privada...">
+  </div>
+  <div class="prefijo-hint" id="prefijoHint">
+    Sus casos se identificarán como: <strong id="prefijoEj">H-001D, H-002I...</strong>
+  </div>
+  <button class="btn btn-primary" onclick="iniciar()">Comenzar instalación →</button>
+</div>
+
+<!-- PROGRESO -->
+<div class="progress-wrap" id="pgWrap" style="display:none">
+  <div class="progress-top">
+    <span id="pgLabel">Progreso</span>
+    <span id="pgPct">0%</span>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="pgFill" style="width:0%"></div></div>
+</div>
+
+<!-- PASOS -->
+<div class="steps" id="stepsEl" style="display:none"></div>
+
+<!-- FINAL -->
+<div class="final" id="finalEl">
+  <span class="check-big">✓</span>
+  <h2>¡Sistema listo!</h2>
+  <p id="finalDesc">Su Sistema PROMs AMECRA está configurado y listo para sus pacientes.</p>
+  <div class="ubox" id="finalURL"></div>
+  <div class="final-btns">
+    <button class="btn btn-green" onclick="probar()">Probar ahora →</button>
+    <button class="btn" style="background:rgba(255,255,255,.15);color:white" onclick="copiar()">Copiar URL</button>
+  </div>
+</div>
+
+</div>
+<script>
+const MASTER_ID='1qQCZjlrz5XPTORwYmN2Gbb2cuHX-fVw2Uoja8V3zHDs';
+let md={};
+let wUrl='';
+let done=new Set();
+
+function onFormChange(){
+  const ap=document.getElementById('fApellido').value.trim();
+  const pr=document.getElementById('fPrefijo');
+  if(ap&&!pr.value) pr.value=ap.charAt(0).toUpperCase();
+  const p=pr.value||'?';
+  const h=document.getElementById('prefijoHint');
+  h.style.display='block';
+  document.getElementById('prefijoEj').textContent=p+'-001D, '+p+'-002I, '+p+'-003B...';
+}
+
+function iniciar(){
+  const n=document.getElementById('fNombre').value.trim();
+  const a=document.getElementById('fApellido').value.trim();
+  const p=document.getElementById('fPrefijo').value.trim().toUpperCase();
+  let ok=true;
+  [['fNombre',n],['fApellido',a],['fPrefijo',p]].forEach(([id,v])=>{
+    document.getElementById(id).classList.toggle('err',!v);
+    if(!v)ok=false;
+  });
+  if(!ok){alert('Complete su nombre, apellido y prefijo para continuar.');return;}
+  md={nombre:n,apellido:a,prefijo:p,
+    inst:document.getElementById('fInstitucion').value.trim(),
+    nombreCompleto:'Dr. '+n+' '+a,
+    sheetsName:'PROMs AMECRA — Dr. '+a+' ('+p+')'};
+  document.getElementById('fmForm').style.display='none';
+  document.getElementById('pgWrap').style.display='block';
+  document.getElementById('stepsEl').style.display='flex';
+  render();
+}
+
+function getSheetsID(){
+  const el=document.getElementById('inSheets');
+  if(!el)return localStorage.getItem('proms_sid')||'';
+  const m=el.value.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  return m?m[1]:'';
+}
+
+const STEPS=[
+  {
+    title:'Copiar la base de datos a su Google Drive',
+    sub:'Un clic — automático',
+    desc(){return`Google creará una copia personal del Sheets en su Drive. Esta copia es exclusivamente suya — sus datos de pacientes nunca se comparten.<br><br><ol><li>Haga clic en <strong>"Copiar Sheets a mi Drive"</strong></li><li>Google abre una ventana — el nombre sugerido es: <code>${md.sheetsName}</code></li><li>Haga clic en <strong>"Hacer una copia"</strong></li><li>Se abre su nuevo Sheets personal — copie su URL de la barra del navegador</li><li>Péguela en el campo de abajo y confirme</li></ol>`;},
+    extra(){return`<div class="alert alert-info">La copia es independiente del Sheets maestro. Sus pacientes y datos son completamente privados.</div>
+<div class="btn-row" style="margin-bottom:14px">
+  <a href="https://docs.google.com/spreadsheets/d/${MASTER_ID}/copy" target="_blank" class="btn btn-primary" onclick="setTimeout(()=>{const w=document.getElementById('sheetsURLWrap');if(w)w.style.display='block'},1500)">Copiar Sheets a mi Drive →</a>
+</div>
+<div id="sheetsURLWrap" style="display:none">
+  <div class="ubox">
+    <label>URL de su nuevo Sheets personal</label>
+    <div class="urow">
+      <input type="text" id="inSheets" placeholder="https://docs.google.com/spreadsheets/d/..." oninput="chkSheets()">
+      <button onclick="confSheets()">Confirmar</button>
+    </div>
+  </div>
+  <div class="alert alert-ok" id="sheetsOK" style="display:none">✓ Sheets configurado correctamente</div>
+</div>`;},
+    act:'Sheets copiado, continuar',
+    fn(){
+      const id=getSheetsID();
+      if(!id){alert('Por favor confirme la URL de su Sheets personal antes de continuar.');return false;}
+      localStorage.setItem('proms_sid',id);return true;
+    }
+  },
+  {
+    title:'Abrir el editor de Apps Script',
+    sub:'Dentro de su nuevo Sheets',
+    desc(){return`En su Sheets personal:<br><br><ol><li>Vaya al menú: <code>Extensiones</code> → <code>Apps Script</code></li><li>Se abre el editor en una nueva pestaña</li><li>Deje esa pestaña abierta para los siguientes pasos</li></ol>`;},
+    extra(){
+      const sid=localStorage.getItem('proms_sid')||'';
+      return sid?`<div class="btn-row"><a href="https://docs.google.com/spreadsheets/d/${sid}/edit" target="_blank" class="btn btn-ghost">Abrir mi Sheets →</a></div>
+<div class="alert alert-info">Si no ve el menú <code>Extensiones</code>, recargue el Sheets con F5.</div>`:'<div class="alert alert-warn">Complete el paso 1 primero.</div>';
+    },
+    act:'Ya tengo Apps Script abierto',
+    fn(){return confirm('¿Está viendo el editor de Apps Script en una nueva pestaña?');}
+  },
+  {
+    title:'Pegar el código del backend',
+    sub:'El cerebro del sistema — 1 minuto',
+    desc(){return`En el editor de Apps Script:<br><br><ol><li>Haga clic en <code>Código.gs</code> en el panel izquierdo</li><li>Seleccione todo el contenido (Ctrl+A) y bórrelo</li><li>Abra el archivo <code>Backend_PROMs_v2.gs</code> con el Bloc de notas</li><li>Copie todo (Ctrl+A → Ctrl+C)</li><li>Péguelo en el editor (Ctrl+V)</li><li>Guarde con Ctrl+S</li></ol>`;},
+    extra(){return`<div class="alert alert-warn">Use el archivo <strong>Backend_PROMs_v2.gs</strong> — no versiones anteriores. Verifique que el nombre del archivo diga "v2".</div>`;},
+    act:'Código pegado y guardado',
+    fn(){return confirm('¿Pegó el contenido de Backend_PROMs_v2.gs y guardó con Ctrl+S?');}
+  },
+  {
+    title:'Agregar la landing page del paciente',
+    sub:'La interfaz que ve el paciente en la tableta',
+    desc(){return`En Apps Script:<br><br><ol><li>En el panel izquierdo, haga clic en el <code>+</code> junto a "Archivos"</li><li>Seleccione <code>HTML</code></li><li>Escriba exactamente: <code>Landing_PROMs_Paciente</code> (sin espacios, sin acentos)</li><li>Borre el contenido predeterminado</li><li>Abra <code>Landing_PROMs_Paciente.txt</code> con el Bloc de notas</li><li>Copie todo (Ctrl+A → Ctrl+C) y pegue (Ctrl+V)</li><li>Guarde con Ctrl+S</li></ol>`;},
+    extra(){return`<div class="alert alert-info">El nombre debe ser exactamente <code>Landing_PROMs_Paciente</code>. Un error en el nombre impide que el sistema funcione.</div>`;},
+    act:'Landing page agregada',
+    fn(){return confirm('¿Creó el archivo HTML llamado exactamente "Landing_PROMs_Paciente" y pegó el contenido?');}
+  },
+  {
+    title:'Desplegar como aplicación web',
+    sub:'Este paso genera su URL personal única',
+    desc(){return`En Apps Script:<br><br><ol><li>Haga clic en el botón azul <strong>Desplegar</strong> (arriba a la derecha)</li><li>Seleccione <strong>Nueva implementación</strong></li><li>Haga clic en ⚙️ → <strong>Aplicación web</strong></li><li><strong>Ejecutar como:</strong> Yo</li><li><strong>Quién tiene acceso:</strong> Cualquier persona</li><li>Haga clic en <strong>Implementar</strong></li><li>Acepte los permisos que solicite Google</li><li>Copie la URL que termina en <code>/exec</code></li></ol>`;},
+    extra(){return`<div class="alert alert-warn">Si Google muestra una advertencia de seguridad, haga clic en <strong>"Configuración avanzada" → "Ir a (nombre) (no seguro)"</strong>. Es normal para apps personales.</div>
+<div class="ubox">
+  <label>Pegue aquí su URL /exec</label>
+  <div class="urow">
+    <input type="text" id="inExec" placeholder="https://script.google.com/macros/s/.../exec" oninput="chkExec()">
+    <button onclick="confExec()">Guardar</button>
+  </div>
+</div>
+<div class="alert alert-ok" id="execOK" style="display:none">✓ URL guardada correctamente</div>`;},
+    act:'URL guardada, continuar',
+    fn(){
+      const url=document.getElementById('inExec')?.value.trim()||localStorage.getItem('proms_url')||'';
+      if(!url||!url.includes('/exec')){alert('Por favor guarde su URL /exec antes de continuar.');return false;}
+      wUrl=url;return true;
+    }
+  },
+  {
+    title:'Instalar el sistema con un clic',
+    sub:'El menú aparece automáticamente en su Sheets',
+    desc(){return`<ol><li>Regrese a su Google Sheets personal</li><li>Recargue la página (F5)</li><li>Aparecerá el menú: <strong>⚙️ PROMs AMECRA</strong></li><li>Haga clic en: <strong>⚙️ PROMs AMECRA → 🚀 Instalar / Actualizar sistema</strong></li><li>Espere el mensaje de confirmación</li></ol>`;},
+    extra(){
+      const sid=localStorage.getItem('proms_sid')||'';
+      return(sid?`<div class="btn-row"><a href="https://docs.google.com/spreadsheets/d/${sid}/edit" target="_blank" class="btn btn-ghost">Abrir mi Sheets →</a></div>`:'')
+      +'<div class="alert alert-info">Si el menú no aparece inmediatamente, recargue la página y espere 15 segundos.</div>';
+    },
+    act:'Instalación completada',
+    fn(){return confirm('¿Apareció el menú ⚙️ PROMs AMECRA y ejecutó "Instalar / Actualizar sistema" exitosamente?');}
+  },
+  {
+    title:'Probar con un paciente de prueba',
+    sub:'Verificación final del sistema completo',
+    desc(){return`<ol><li>Abra la URL de pacientes en una tableta o navegador</li><li>Ingrese el código <code>${md.prefijo}-001D</code></li><li>Seleccione una articulación y complete el cuestionario</li><li>Verifique que en su Sheets aparezca el registro en <strong>📋 Vaciado SPSS</strong></li></ol>`;},
+    extra(){
+      const url=wUrl||localStorage.getItem('proms_url')||'';
+      if(!url)return'<div class="alert alert-warn">Complete el paso 5 primero para obtener la URL.</div>';
+      const full=url+'?page=landing';
+      return`<div class="ubox"><label>URL para la tableta de pacientes</label><div class="udisp"><span>${full}</span><button onclick="navigator.clipboard.writeText('${full}').then(()=>this.textContent='¡Copiado!').catch(()=>alert('Ctrl+C'))">Copiar</button></div></div>
+<div class="btn-row"><a href="${full}" target="_blank" class="btn btn-primary">Abrir en la tableta →</a></div>`;
+    },
+    act:'¡Todo funciona correctamente!',
+    fn(){return confirm('¿El cuestionario se completó y aparece el registro en la hoja Vaciado SPSS?');}
+  },
+];
+
+function chkSheets(){
+  const el=document.getElementById('inSheets');
+  if(!el)return;
+  const m=el.value.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  if(m)el.style.borderColor='var(--green)';
+}
+
+function confSheets(){
+  const id=getSheetsID();
+  if(!id){alert('La URL no es válida. Debe ser la URL de su Google Sheets personal.');return;}
+  localStorage.setItem('proms_sid',id);
+  const ok=document.getElementById('sheetsOK');
+  if(ok)ok.style.display='block';
+}
+
+function chkExec(){
+  const el=document.getElementById('inExec');
+  if(!el)return;
+  if(el.value.includes('/exec'))el.style.borderColor='var(--green)';
+}
+
+function confExec(){
+  const el=document.getElementById('inExec');
+  const url=el?el.value.trim():'';
+  if(!url||!url.includes('/exec')){alert('La URL debe terminar en /exec.');return;}
+  wUrl=url;
+  localStorage.setItem('proms_url',url);
+  const ok=document.getElementById('execOK');
+  if(ok)ok.style.display='block';
+}
+
+function curStep(){for(let i=0;i<STEPS.length;i++){if(!done.has(i))return i;}return STEPS.length;}
+
+function render(){
+  const el=document.getElementById('stepsEl');
+  el.innerHTML='';
+  STEPS.forEach((s,i)=>{
+    const isDone=done.has(i);
+    const isAct=!isDone&&i===curStep();
+    const isLocked=!isDone&&i>curStep();
+    const card=document.createElement('div');
+    card.className='step-card'+(isAct?' active':'')+(isDone?' done':'')+(isLocked?' locked':'');
+    card.id='sc'+i;
+    const nc=isDone?'dn':isAct?'act':'pend';
+    const bc=isDone?'bd':isAct?'ba':'bp';
+    const bt=isDone?'Completado':isAct?'En progreso':'Pendiente';
+    const nv=isDone?'✓':(i+1);
+    const open=(isAct||isDone)?'open':'';
+    card.innerHTML=`<div class="step-head"><div class="snum ${nc}">${nv}</div><div class="sinfo"><h3>Paso ${i+1} — ${s.title}</h3><p>${s.sub}</p></div><span class="badge ${bc}">${bt}</span></div>
+<div class="sbody ${open}"><p class="sdesc">${s.desc()}</p>${s.extra?s.extra():''}${!isDone?`<div class="btn-row"><button class="btn btn-primary" onclick="doStep(${i})">${s.act}</button></div>`:'<div class="alert alert-ok" style="margin-top:12px">✓ Paso completado exitosamente</div>'}</div>`;
+    el.appendChild(card);
+  });
+  const pct=Math.round(done.size/STEPS.length*100);
+  document.getElementById('pgFill').style.width=pct+'%';
+  document.getElementById('pgPct').textContent=pct+'%';
+  document.getElementById('pgLabel').textContent=done.size+' de '+STEPS.length+' pasos completados';
+}
+
+function doStep(i){
+  const r=STEPS[i].fn();
+  if(r===true){
+    done.add(i);render();
+    if(i+1<STEPS.length){setTimeout(()=>{const c=document.getElementById('sc'+(i+1));if(c)c.scrollIntoView({behavior:'smooth',block:'center'});},300);}
+    else setTimeout(mostrarFinal,400);
+  }
+}
+
+function mostrarFinal(){
+  const fEl=document.getElementById('finalEl');
+  fEl.style.display='block';
+  wUrl=wUrl||localStorage.getItem('proms_url')||'';
+  const full=wUrl?wUrl+'?page=landing':'(URL no configurada — repita el paso 5)';
+  document.getElementById('finalDesc').innerHTML=`${md.nombreCompleto}${md.inst?' · '+md.inst:''}<br>Prefijo de casos: <strong>${md.prefijo}-XXX</strong> · Sistema listo para pacientes.`;
+  document.getElementById('finalURL').innerHTML=`<label>URL para la tableta de pacientes</label><div class="udisp"><span>${full}</span>${wUrl?`<button onclick="navigator.clipboard.writeText('${full}').then(()=>this.textContent='¡Copiado!').catch(()=>alert('Ctrl+C'))">Copiar</button>`:''}`;
+  fEl.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function probar(){
+  const u=wUrl||localStorage.getItem('proms_url')||'';
+  if(u)window.open(u+'?page=landing','_blank');
+  else alert('No se encontró URL. Complete el paso 5.');
+}
+function copiar(){
+  const u=wUrl||localStorage.getItem('proms_url')||'';
+  if(u)navigator.clipboard.writeText(u+'?page=landing').then(()=>alert('URL copiada.')).catch(()=>alert('URL: '+u+'?page=landing'));
+}
+
+const sv=localStorage.getItem('proms_url');if(sv)wUrl=sv;
+</script>
+</body>
+</html>
